@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   themeColor: '#0f0f0f',
+  other: {
+    'google-site-verification': 'kOZ1_Wrm0Wh_a-Qs9OGk4ylWNZaroNl0VtmBLF1GzlI'
+  }
 };
 
 export default function RootLayout({
