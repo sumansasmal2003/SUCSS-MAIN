@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, Lock } from "lucide-react"; // Added User & Lock icons
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
@@ -19,12 +19,10 @@ export default function Navbar() {
     { name: "Contact", href: "/contact" },
   ];
 
-  // Helper function for active state logic
   const isLinkActive = (href: string) => {
     if (href === "/") {
-      return pathname === "/"; // Strict check for Home
+      return pathname === "/";
     }
-    // Professional check: matches "/events" AND "/events/2025"
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
@@ -40,9 +38,11 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex md:items-center">
-            <div className="ml-10 flex items-baseline space-x-6">
+          {/* Desktop Menu & Actions Container */}
+          <div className="hidden md:flex md:items-center md:gap-8">
+
+            {/* 1. Navigation Links */}
+            <div className="flex items-baseline space-x-6">
               {navLinks.map((link) => {
                 const isActive = isLinkActive(link.href);
                 return (
@@ -57,7 +57,6 @@ export default function Navbar() {
                     )}
                   >
                     {link.name}
-                    {/* Floating underline for active state */}
                     {isActive && (
                       <motion.div
                         layoutId="underline"
@@ -71,13 +70,35 @@ export default function Navbar() {
                 );
               })}
             </div>
-          <div className="hidden md:block ml-4">
-            <Link href="/donate" className="bg-accent text-black px-4 py-2 rounded-full text-sm font-bold hover:bg-yellow-400 transition shadow-lg shadow-accent/20">
-              Donate
-            </Link>
-          </div>
-          </div>
 
+            {/* 2. Action Buttons (Admin, Login, Donate) */}
+            <div className="flex items-center gap-3 pl-6 border-l border-border">
+              {/* Admin (Icon only to save space) */}
+              <Link
+                href="/admin"
+                className="text-secondaryText hover:text-white transition-colors p-2"
+                title="Admin Login"
+              >
+                <Lock size={18} />
+              </Link>
+
+              {/* Member Login */}
+              <Link
+                href="/login"
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border border-border text-white hover:border-accent hover:text-accent transition-all"
+              >
+                <User size={16} /> Login
+              </Link>
+
+              {/* Donate CTA */}
+              <Link
+                href="/donate"
+                className="bg-accent text-black px-4 py-2 rounded-full text-sm font-bold hover:bg-yellow-400 transition shadow-lg shadow-accent/20"
+              >
+                Donate
+              </Link>
+            </div>
+          </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
@@ -120,9 +141,33 @@ export default function Navbar() {
                   </Link>
                 );
               })}
-              <Link href="/donate" className="bg-accent text-black px-4 py-2 rounded-full text-sm font-bold hover:bg-yellow-400 transition shadow-lg shadow-accent/20 items-center justify-center w-full">
-                Donate
-              </Link>
+
+              {/* Mobile Actions Section */}
+              <div className="pt-4 mt-2 border-t border-border space-y-3 px-1">
+                 <Link
+                    href="/login"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-md text-base font-medium text-white border border-border hover:border-accent hover:text-accent"
+                 >
+                    <User size={18} /> Member Login
+                 </Link>
+
+                 <Link
+                    href="/donate"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center justify-center w-full bg-accent text-black px-4 py-2 rounded-full text-base font-bold hover:bg-yellow-400 transition shadow-lg shadow-accent/20"
+                 >
+                    Donate
+                 </Link>
+
+                 <Link
+                    href="/admin"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center justify-center gap-2 w-full text-sm text-secondaryText hover:text-white py-2"
+                 >
+                    <Lock size={14} /> Admin Access
+                 </Link>
+              </div>
             </div>
           </motion.div>
         )}

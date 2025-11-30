@@ -16,15 +16,44 @@ export default function JoinPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    const form = e.target as HTMLFormElement;
 
-    toast.success("Application Submitted Successfully!", {
-      description: "Our committee will review your details and contact you shortly.",
-    });
+    // Explicitly getting values using names to ensure they match the API Model
+    const formData = {
+      fullName: (form.elements.namedItem("fullName") as HTMLInputElement).value,
+      guardianName: (form.elements.namedItem("guardianName") as HTMLInputElement).value,
+      dob: (form.elements.namedItem("dob") as HTMLInputElement).value,
+      bloodGroup: (form.elements.namedItem("bloodGroup") as HTMLSelectElement).value,
+      phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
+      email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      address: (form.elements.namedItem("address") as HTMLTextAreaElement).value,
+    };
 
-    setIsSubmitting(false);
-    (e.target as HTMLFormElement).reset();
+    try {
+      const res = await fetch("/api/join", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) throw new Error(result.error || "Submission failed");
+
+      toast.success("Application Submitted Successfully!", {
+        description: "We have received your details. Our committee will review and contact you.",
+      });
+
+      form.reset();
+
+    } catch (error) {
+      console.error(error);
+      toast.error("Submission Failed", {
+        description: "Something went wrong. Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -38,14 +67,13 @@ export default function JoinPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 mt-12">
 
-          {/* --- LEFT COLUMN: Benefits & Info --- */}
+          {/* --- LEFT COLUMN: Benefits --- */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
             className="lg:col-span-2 space-y-8"
           >
-            {/* Benefits Card */}
             <div className="bg-surface border border-border p-8 rounded-3xl relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10">
                 <Shield size={120} />
@@ -67,7 +95,6 @@ export default function JoinPage() {
               </ul>
             </div>
 
-            {/* Fee Structure */}
             <div className="bg-accent/10 border border-accent/20 p-8 rounded-3xl">
               <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <Users size={20} className="text-accent" /> Membership Fees
@@ -88,7 +115,7 @@ export default function JoinPage() {
             </div>
           </motion.div>
 
-          {/* --- RIGHT COLUMN: Application Form --- */}
+          {/* --- RIGHT COLUMN: Form --- */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -99,21 +126,20 @@ export default function JoinPage() {
 
             <form onSubmit={handleSubmit} className="space-y-8">
 
-              {/* Personal Info Group */}
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-secondaryText uppercase ml-1">Full Name</label>
                     <div className="relative">
                       <User className="absolute left-4 top-3.5 text-gray-500" size={18} />
-                      <input required type="text" placeholder="Your Name" className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition" />
+                      <input name="fullName" required type="text" placeholder="Your Name" className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-secondaryText uppercase ml-1">Father's / Husband's Name</label>
                     <div className="relative">
                       <User className="absolute left-4 top-3.5 text-gray-500" size={18} />
-                      <input required type="text" placeholder="Guardian Name" className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition" />
+                      <input name="guardianName" required type="text" placeholder="Guardian Name" className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition" />
                     </div>
                   </div>
                 </div>
@@ -123,14 +149,21 @@ export default function JoinPage() {
                     <label className="text-xs font-bold text-secondaryText uppercase ml-1">Date of Birth</label>
                     <div className="relative">
                       <Calendar className="absolute left-4 top-3.5 text-gray-500" size={18} />
-                      <input required type="date" className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition [&::-webkit-calendar-picker-indicator]:invert" />
+                      <input
+                        name="dob"
+                        required
+                        type="date"
+                        title="Date of Birth"
+                        placeholder="Select your date of birth"
+                        className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition [&::-webkit-calendar-picker-indicator]:invert"
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-secondaryText uppercase ml-1">Blood Group</label>
                     <div className="relative">
                       <Heart className="absolute left-4 top-3.5 text-gray-500" size={18} />
-                      <select className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition appearance-none">
+                      <select name="bloodGroup" title="Blood Group" className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition appearance-none">
                         <option value="">Select Group</option>
                         <option value="A+">A+</option>
                         <option value="B+">B+</option>
@@ -146,7 +179,6 @@ export default function JoinPage() {
                 </div>
               </div>
 
-              {/* Contact Info Group */}
               <div className="space-y-4 pt-4 border-t border-border">
                 <h4 className="text-white font-semibold">Contact Information</h4>
 
@@ -155,14 +187,14 @@ export default function JoinPage() {
                     <label className="text-xs font-bold text-secondaryText uppercase ml-1">Phone Number</label>
                     <div className="relative">
                       <Phone className="absolute left-4 top-3.5 text-gray-500" size={18} />
-                      <input required type="tel" placeholder="+91 ..." className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition" />
+                      <input name="phone" required type="tel" placeholder="+91 ..." className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-secondaryText uppercase ml-1">Email (Optional)</label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-3.5 text-gray-500" size={18} />
-                      <input type="email" placeholder="you@example.com" className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition" />
+                      <input name="email" type="email" placeholder="you@example.com" className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition" />
                     </div>
                   </div>
                 </div>
@@ -171,7 +203,7 @@ export default function JoinPage() {
                   <label className="text-xs font-bold text-secondaryText uppercase ml-1">Permanent Address</label>
                   <div className="relative">
                     <MapPin className="absolute left-4 top-3.5 text-gray-500" size={18} />
-                    <textarea required rows={3} placeholder="Village, Post Office, District, PIN..." className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition resize-none"></textarea>
+                    <textarea name="address" required rows={3} placeholder="Village, Post Office, District, PIN..." className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-white focus:outline-none focus:border-accent transition resize-none"></textarea>
                   </div>
                 </div>
               </div>
