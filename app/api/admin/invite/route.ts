@@ -35,7 +35,6 @@ export async function POST(req: Request) {
     const phoneSuffix = body.phone ? body.phone.slice(-4) : Math.floor(1000 + Math.random() * 9000).toString();
     const username = `${body.fullName.split(' ')[0].toLowerCase()}${phoneSuffix}`;
 
-    // 2. Create Member Object (Status = Approved)
     const newMemberData = {
       ...body,
       status: "Approved",
