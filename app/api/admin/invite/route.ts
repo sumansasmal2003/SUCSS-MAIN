@@ -28,9 +28,6 @@ export async function POST(req: Request) {
     await dbConnect();
     const body = await req.json();
 
-    // 1. Generate Credentials
-    // Note: We need DOB to generate the password pattern.
-    // If Admin doesn't provide DOB, default to current year or handle gracefully.
     const dobDate = body.dob ? new Date(body.dob) : new Date();
     const rawPassword = generatePassword(body.fullName, dobDate);
 
